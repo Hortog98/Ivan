@@ -1,0 +1,51 @@
+language: c 
+
+env: 
+global: 
+# SAUCE_ACCESS_KEY 
+- secure: "YE0n2BcdXokZ/hgcOoptp0bIw+sMKme/+XMNxT01BYqsSN/7KyNkEC5SpAN6K5IYVTBo59QP3EtDQtrsX5uMo9PL84CQzt2wKm2t9yByGIk3TehQ339fdJZKbnd9cVL726fCcDp06Ld73RNh63pc+DglmrKYB5Lx5ElwTs9PnPU=" 
+# SAUCE_USERNAME 
+- secure: "CgBkZlD50ICcik+vYxiKUU/gLGz8G2a62u+k4VoinbOMR9eWk2mk5Qxt4dVMZH2cYVBzFrBooFm/2R+DjrlImM4KoUEtHwW7uPSrEuIGTcIwx7D7wtF1BmJnnnt2Tn5Aq8osYby0plLtPyCQ6TFBDppXc9fnNQnVglZ0HA3XcNE=" 
+matrix: 
+- TARGET=java 
+- TARGET=java ARCH=i686 
+- TARGET=cs 
+- TARGET=cs ARCH=i686 
+- TARGET=neko 
+- TARGET=neko ARCH=i686 
+- TARGET=cpp 
+- TARGET=cpp ARCH=i686 
+- TARGET=flash9 
+- TARGET=as3 
+- TARGET=python 
+- TARGET=js TOOLCHAIN=default 
+- TARGET=js TOOLCHAIN=default ARCH=i686 
+- TARGET=js TOOLCHAIN=browser SAUCE_BROWSERS=.sauce-browsers.json 
+- TARGET=php 
+- TARGET=neko HAXE_VER=HEAD~2 
+- TARGET=neko HAXE_VER=3.1.3 
+- TARGET=neko HAXE_VER=v3.1.0 
+
+matrix: 
+fast_finish: true 
+allow_failures: 
+- env: TARGET=as3 # buddy issue with as3 
+- env: TARGET=python # buddy issue with python 
+
+install: 
+- $TRAVIS_BUILD_DIR/setup.sh  
+- haxelib install buddy 
+- haxelib install utest 
+- ln -s $TRAVIS_BUILD_DIR ~/travis-hx 
+
+script: 
+- cd $TRAVIS_BUILD_DIR/tests/fail 
+- HXFLAGS="-main BuddyTests -lib buddy -D reporter=buddy.reporting.TravisHxReporter" ~/travis-hx/build.sh 
+- ~/travis-hx/runtests.sh  $FILENAME && exit 1 || echo "fails as expected" 
+- HXFLAGS="-main Utest -lib utest -D travis" ~/travis-hx/build.sh  
+- ~/travis-hx/runtests.sh  $FILENAME && exit 1 || echo "fails as expected" 
+- cd $TRAVIS_BUILD_DIR/tests/success 
+- HXFLAGS="-main BuddyTests -lib buddy -D reporter=buddy.reporting.TravisHxReporter" ~/travis-hx/build.sh 
+- ~/travis-hx/runtests.sh  $FILENAME 
+- HXFLAGS="-main Utest -lib utest -D travis" ~/travis-hx/build.sh  
+- ~/travis-hx/runtests.sh  $FILENAME
