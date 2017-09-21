@@ -1,41 +1,36 @@
-all: prog test
+all: program
 
-test:			mkDir modul_test.o result_test.o
+program:	mkDir project.o functions.o
+		g++ build/project.o build/functions.o -o bin/project.exe
 
-				gcc build/modul_test.o build/result.o  -o bin/tests
+project.o:	project.cpp
+		g++ -I library -Wall -Werror -c project.cpp -o build/project.o
 
-modul_test.o:	tests/modul_test.c
-		
-				gcc -I tests/modul_test.c -o build/modul_test.o
+functions.o:	functions.cpp
+		g++ -I library -Wall -Werror -c functions.cpp -o build/functions.o
 
+test:		mkDir modul_test.o result_test.o 
+		gcc build/modul_test.o build/result_test.o -o bin/test.exe
+
+modul_test.o:		tests/modul_test.c
+		gcc -I library -I main -c tests/modul_test.c -o build/modul_test.o
 
 result_test.o:	tests/result_test.c
+		gcc -I library -I main -c tests/result_test.c -o build/result_test.o
 
-				gcc -I tests/result_test.c -o build/result_test.o
+mkDir:	bin build
 
-
-mkDir:			bin build
-
-
-bin:			
-				test ! -d bin && mkdir bin
-
+bin:
+	test ! -d bin && mkdir bin
 
 build:
-				test ! -d build && mkdir build
-
-
-.PHONY:			clean
-
+	test ! -d build && mkdir build
 
 clean:
-				rm -r bin
-				rm -r build
-
+	rm -r bin
+	rm -r build
 
 run:
-				./bin/prog
-
-
+	./bin/project.exe
 runtest:
-				./bin/tests
+	./bin/test.exe
